@@ -1,0 +1,119 @@
+---
+title: "Assignment2"
+author: "Vibhore Dhanda s4653077"
+date: "03/25/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+### Part 1
+*Vibhore Dhanda*
+## ID-s4653077 
+<hr> 
+# Assignment 2
+<hr>
+### Part 2
+
+```{r}
+library(tidyverse)
+library(skimr)
+DATA <-read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018/2018-11-20/thanksgiving_meals.csv")
+```
+### Question1
+```{r}
+knitr::kable(head(DATA[,1:12],10))
+```
+
+### Question2
+```{r}
+data_extracted<-skim(DATA)
+
+```
+### Question3
+```{r}
+family_income<-fct_reorder(DATA$family_income, DATA$family_income, min)
+```
+### Question 4
+```{r}
+nrow(subset(DATA, celebrate=='Yes'))
+```
+### Question5
+```{r}
+knitr::kable(DATA %>% group_by(main_dish) %>%  count(main_prep) %>% arrange(desc(n)) %>% head(n=10))
+```
+### Question6
+```{r}
+DATA %>% ggplot() +  aes(x = main_dish, fill = main_dish) +   geom_bar() + labs(x = "Main Dish", y = "Count", title = "Main dish served with method", subtitle = "Main Dish", caption = "main dish served with method",  fill = "Legend")
+```
+<p>The graph shows that highest served dish is Turkey. It means people like to have the Turkey dish most in almost all the restrurents</p>
+<br>
+### Question7
+```{r}
+nrow(subset(DATA, cranberry=='Canned' | cranberry=='Homemade'))
+nrow(subset(DATA, gravy=='Yes'))
+```
+
+### Question 8 and 9
+```{r}
+knitr::kable(DATA %>% group_by(celebrate) %>%  count(family_income) %>% arrange(desc(n)) %>% head(n=10))
+```
+```{r}
+DATA %>% ggplot() +  aes(x = celebrate, fill =family_income) +   geom_bar() + labs(x = "celebrate", y = "Count", title = "Distribution of those who celebrate with income ranges", subtitle = "Celebrate", caption = "Distribution of those who celebrate with income ranges",  fill = "Legend")
+```
+<p>The graph shows that there are many people who celebrated in different income group. That means all the people has enjoyed. But there are very few people who doesnot celebrate at all. Even there are few people having income level betweer 0 to 9999 also celebrate</p>
+<br>
+### Question10
+```{r}
+Data1<-DATA %>% select(id, starts_with("side"),
+         starts_with("pie"),
+         starts_with("dessert")) %>%
+  select(-side15, -pie13, -dessert12) %>%
+  gather(type, value, -id) %>%
+  filter(!is.na(value),
+         !value %in% c("None", "Other (please specify)")) %>%
+  mutate(type = str_remove(type, "\\d+"))
+print(Data1)
+```
+<p>It shows three fields having value started with mentioned word. In case of first column the value started with side, secode column value started with pie and third started with dessert</p>
+<br>
+
+### Question11 and 12
+```{r}
+library(widyr)
+```
+<p>The function pairwise_cor shows the correlation between different set of pairs that are present in the new dataset. The highest corrlation value is between Cookies and Brownies, also lowest correlation between the Mashed potatoes and Pumpkin</p>
+<br>
+```{r}
+Data1 %>% pairwise_cor(value, id, sort = TRUE)
+```
+<p>The function pairwise_cor shows the correlation between different set of pairs that are present in the new dataset. The highest corrlation value is between Cookies and Brownies, also lowest correlation between the Mashed potatoes and Pumpkin</p>
+<br>
+ 
+### Question 13
+
+```{r}
+#linear regression model
+data_extracted <- do.call(data.frame, lapply(data_extracted, function(x) {
+  replace(x, is.infinite(x) | is.na(x) | is.nan(x), 0)
+  })
+)
+#model1 
+relation <- lm(t(data_extracted[4])~t(data_extracted[5]),data =head(data_extracted,10))
+summary(relation)
+install.packages("randomForest")
+#model2
+relation <- lm(t(data_extracted[5])~t(data_extracted[6]),data =head(data_extracted,10))
+summary(relation)
+#model3
+relation <- lm(t(data_extracted[3])~t(data_extracted[4]),data =head(data_extracted,10))
+summary(relation)
+
+```
+<p>The varible choosen are the income of the people and also their spendings on the recreation. It will be helping in setting the relationship and also help in setting the recreation spendings</p>
+
+<p> The Best model is linear regression model having lower error rate comppared to the Random forest and neural network. </p>
+<br>
+
+
